@@ -1,76 +1,73 @@
-pragma solidity >=0.4.22 <0.6.0;
+//SPDX-License-Identifier: MIT
 
-contract HealthCare {
+pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
+contract InsuranceRecord {
+
+    struct Record {
+        address patientAddr;
+        string name;
+        string date;
+        string hospitalName;
+        uint256 price;
+        string ipfsHash;
+        bool hSign;
+        bool lSign;
+        bool isValue;
+    }
+
+    mapping(address => Record) public recordList;
+    uint256 public recordCount;
     address private hospitalAdmin;
     address private labAdmin;
 
-    struct Record {
-        uint256 ID;
-        uint256 price;
-        uint256 signatureCount;
-        string testName;
-        string date;
-        string hospitalName;
-        bool isValue;
-        address pAddr;
-        mapping (address => uint256) signatures;
+    constructor() public {
+        hospitalAdmin = 0x332421378d6D471C8D1FaEE94c662DA0f8717C59;
+        labAdmin = 0xC19Dc426cf4960e522B4d57C8B172927d0618460;
     }
 
-    modifier signOnly {
-        require (msg.sender == hospitalAdmin || msg.sender == labAdmin );
+    event recordCreated(address patientAddr, string name, string date, string hospitalName, uint256 price, string ipfsHash);
+    event recordSigned(address patientAddr, string name, string date, string hospitalName, uint256 price, string ipfsHash);
+
+    function newRecord(string memory _name, string memory _date, string memory _hospitalName, uint256 _price, string memory _ipfsHash) public {
+        require(!recordList[msg.sender].isValue);
+        recordList[msg.sender] = Record(msg.sender, _name, _date, _hospitalName, _price, _ipfsHash, false, false, true);
+        recordCount++;
+        emit recordCreated(msg.sender, _name, _date, _hospitalName, _price, _ipfsHash);
+    }
+
+    modifier validatorsOnly {
+        require(msg.sender == hospitalAdmin || msg.sender == labAdmin);
         _;
     }
 
-    constructor() public {
-        hospitalAdmin = msg.sender;
-        labAdmin = 0xF6F2F51c07e44efE7BC25E0EC6B332f39d930ac0;     //assigning a hard coded address from ganache                   
-    }
-    
-    
-    // Mapping to store records
-    mapping (uint256=> Record) public _records;
-    uint256[] public recordsArr;
-
-    event recordCreated(uint256 ID, string testName, string date, string hospitalName, uint256 price);
-    event recordSigned(uint256 ID, string testName, string date, string hospitalName, uint256 price);
-    
-    // Create new record
-    function newRecord (uint256 _ID, string memory _tName, string memory _date, string memory hName, uint256 price) public{
-        Record storage _newrecord = _records[_ID];
-
-        // Only allows new records to be created
-        require(!_records[_ID].isValue);
-            _newrecord.pAddr = msg.sender;
-            _newrecord.ID = _ID;
-            _newrecord.testName = _tName;
-            _newrecord.date = _date;
-            _newrecord.hospitalName = hName;
-            _newrecord.price = price;
-            _newrecord.isValue = true;
-            _newrecord.signatureCount = 0;
-
-        recordsArr.push(_ID);
-        emit  recordCreated(_newrecord.ID, _tName, _date, hName, price);
-    }
-
-    // Function to sign a record 
-    function signRecord(uint256 _ID) signOnly public {
-        Record storage records = _records[_ID];
+    function signRecord(address patientAddr) validatorsOnly public {
+        Record storage _record = recordList[patientAddr];
+        require((!_record.hSign && msg.sender==hospitalAdmin) || (!_record.lSign && msg.sender==labAdmin));
         
-        // Checks the aunthenticity of the address signing it
-        require(address(0) != records.pAddr);
-        require(msg.sender != records.pAddr);
-        
-        // Doesn't allow the same person to sign twice
-        require(records.signatures[msg.sender] != 1);
+        if(msg.sender==hospitalAdmin){
+            _record.hSign=true;
+            }
+            
+        else{
+            _record.lSign=true;
+            }
 
-        records.signatures[msg.sender] = 1;
-        records.signatureCount++;
-
-        // Checks if the record has been signed by both the authorities to process insurance claim
-        if(records.signatureCount == 2)
-            emit  recordSigned(records.ID, records.testName, records.date, records.hospitalName, records.price);
-
+        if(_record.hSign && _record.lSign) {
+            emit recordSigned(_record.patientAddr, _record.name, _record.date, _record.hospitalName, _record.price, _record.ipfsHash);
+        }
     }
+
+    function getIPFS(address patientAddr) public view returns(string memory) {
+        return recordList[patientAddr].ipfsHash;
+    }
+
+    function checkRecord(address patientAddr) public view returns(bool) {
+        return recordList[patientAddr].isValue;
+    }
+
+    // function getList() public view returns(Record[] memory) {
+    //     return recordList;
+    // }
 }

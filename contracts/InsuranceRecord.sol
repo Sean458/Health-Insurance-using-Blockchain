@@ -14,6 +14,12 @@ contract InsuranceRecord {
         bool isValue;
     }
 
+    // struct Documents {
+    //     address patientAddr; //
+    //     string[] ipfs; // 1,2,3,4,5
+    //     string[] new_ipfs; // 6,7
+    // }
+
     struct Hospital {
         address hospitalAddr; //Primary Key
         string password;
@@ -41,17 +47,17 @@ contract InsuranceRecord {
         uint256[] policyList; // ID => amount
     }
 
-    mapping(address => Patient) patients;
-    mapping(address => Hospital) hospitals;
-    mapping(address => Claim) claims;
-    address[] hospitalList;
-    uint256 hospitalCount;
-    address[] claimList;
-    uint256 claimCount;
+    mapping(address => Patient) public patients;
+    mapping(address => Hospital) public hospitals;
+    mapping(address => Claim) public claims;
+    mapping(uint256 => address) public hospitalList;
+    uint256 public hospitalCount = 0;
+    mapping(uint256 => address) public claimList;
+    uint256 public claimCount = 0;
     Insurance IC;
 
     constructor() public {
-        IC = Insurance(0xC3580Cb3E0252B3B5D0a360863e6AA5c63f4AC4b,"Claim-Chain","insurance","insurance",true,new uint256[](5));
+        IC = Insurance(0x0e9dF964F6E2d08e4984C89DFBFf84d8aFAAfe07,"Claim-Chain","insurance","insurance",true,new uint256[](5));
         IC.policyList[0] = 9000;
         IC.policyList[1] = 15000;
         IC.policyList[2] = 20000;
@@ -61,12 +67,12 @@ contract InsuranceRecord {
 
     function registerHospital(string memory _hospitalName, string memory _password, address _hospitalAddr) public {
         require(!hospitals[_hospitalAddr].isValue);
-        Hospital storage h;
+        Hospital memory h;
         h.hospitalAddr = _hospitalAddr;
         h.hospitalName = _hospitalName;
         h.password = _password;
         h.isValue = true;
-        // hospitals[_hospitalAddr] = Hospital(_hospitalAddr,_password,_hospitalName,true);
+        hospitals[_hospitalAddr] = h;
         hospitalList[hospitalCount++] = _hospitalAddr;
     }
 
@@ -123,8 +129,8 @@ contract InsuranceRecord {
         return IC.policyList;
     }
 
-    function selectPolicy(uint256 _policyID, address _patientAddr) public view returns(bool){
-        Patient memory p = patients[_patientAddr];
+    function selectPolicy(uint256 _policyID, address _patientAddr) public returns(bool){
+        Patient storage p = patients[_patientAddr];
         if(p.policyStat == 0) {
             p.policyID = _policyID;
             p.policyStat = 1;
@@ -135,7 +141,7 @@ contract InsuranceRecord {
     }
 
     function claimPolicy(address _patientAddr, address _hospitalAddr, string memory _ipfsHash, string memory _date) public{
-        Patient memory p = patients[_patientAddr];
+        Patient storage p = patients[_patientAddr];
         require(p.isValue);
         require(p.policyStat == 1);
         p.policyStat = 2;
@@ -150,6 +156,9 @@ contract InsuranceRecord {
         uint256[] memory amountList = new uint256[](pAlist.length);
         string[] memory datelist = new string[](pAlist.length);
         for(uint256 i=0; i<pAlist.length; i++){
+            if(claims[pAlist[i]].signatureCount == 1) {
+                continue;
+            }
             pNlist[i] = patients[pAlist[i]].pName;
             ipfslist[i] = claims[pAlist[i]].ipfsHash;
             amountList[i] = IC.policyList[patients[pAlist[i]].policyID];
@@ -158,9 +167,10 @@ contract InsuranceRecord {
         return (pAlist,pNlist,ipfslist,amountList,datelist);
     }
 
-    function transact(address sender, address payable receiver, uint256 amount) public returns(bool){
+    function transact(address sender, address receiver, uint256 amount) public returns(bool){
+        address payable r = payable(receiver);
         if(msg.sender == sender) {
-            return receiver.send(amount);
+            return r.send(amount);
         } else {
             return false;
         }
@@ -169,13 +179,13 @@ contract InsuranceRecord {
     function signClaim(address _patientAddr,address Addr) public returns(bool) {
         require(Addr!=address(0));
         require(Addr!=_patientAddr);
-        Claim memory c = claims[_patientAddr];
+        Claim storage c = claims[_patientAddr];
         Patient memory p = patients[_patientAddr];
         Hospital memory h = hospitals[c.hospitalAddr];
         if(Addr==IC.ICAddr){
             require(c.signatureCount==1);
             c.signatureCount++;
-            transact(IC.ICAddr,payable(p.patientAddr),IC.policyList[p.policyID]);
+            transact(IC.ICAddr,p.patientAddr,IC.policyList[p.policyID]);
         } else if(Addr==h.hospitalAddr) {
             require(c.signatureCount==0);
             c.signatureCount++;
@@ -183,7 +193,26 @@ contract InsuranceRecord {
         }
     }
 
-    // function getIClaimList() public view returns() {
-
-    // }
+    function getIClaimList() public view returns(address[] memory, string[] memory, string[] memory, uint256[] memory, uint256[] memory, string[] memory, string[] memory) {
+        address[] memory pAlist = new address[](claimCount);
+        string[] memory pNlist = new string[](pAlist.length);
+        string[] memory ipfslist = new string[](pAlist.length);
+        uint256[] memory SClist = new uint256[](pAlist.length);
+        uint256[] memory amountList = new uint256[](pAlist.length);
+        string[] memory datelist = new string[](pAlist.length);
+        string[] memory hNlist = new string[](pAlist.length);
+        for(uint256 i=0; i<claimCount; i++){
+            if(patients[claimList[i]].policyStat != 2){
+                continue;
+            }
+            pAlist[i] = claimList[i];
+            pNlist[i] = patients[pAlist[i]].pName;
+            ipfslist[i] = claims[pAlist[i]].ipfsHash;
+            SClist[i] = claims[pAlist[i]].signatureCount;
+            amountList[i] = IC.policyList[patients[pAlist[i]].policyID];
+            datelist[i] = claims[pAlist[i]].date;
+            hNlist[i] = hospitals[claims[pAlist[i]].hospitalAddr].hospitalName;
+        }
+        return (pAlist,pNlist,ipfslist,SClist,amountList,datelist,hNlist);
+    }
 }

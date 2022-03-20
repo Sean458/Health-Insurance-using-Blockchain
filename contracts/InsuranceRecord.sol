@@ -132,6 +132,18 @@ contract InsuranceRecord {
             return false;
         }
     }
+    
+    function getPatients(address _patientAddr) public view returns (Patient memory) {
+    return patients[_patientAddr];
+    }
+
+    function getHospitals(address _hospitalAddr) public view returns (Hospital memory) {
+    return hospitals[_hospitalAddr];
+    }
+
+    function getClaimDetails(address _patientAddr) public view returns (Claim memory) {
+    return claims[_patientAddr];
+    }
 
     function getPolicyList() public view returns(uint256[] memory) {
         return IC.policyList;

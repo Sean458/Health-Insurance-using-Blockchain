@@ -3,6 +3,12 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
+interface IWallet {
+    receive() external payable;
+    function transact(address,uint256) external payable;
+    function checkBalance() external view returns(uint256);
+}
+
 contract InsuranceRecord {
 
     struct Claim {
@@ -47,6 +53,7 @@ contract InsuranceRecord {
         uint256[] policyList; // ID => amount
     }
 
+    address payable private IWalletAddr;
     mapping(address => Patient) public patients;
     mapping(address => Hospital) public hospitals;
     mapping(address => Claim) public claims;
@@ -63,6 +70,7 @@ contract InsuranceRecord {
         IC.policyList[2] = 20000;
         IC.policyList[3] = 10000;
         IC.policyList[4] = 13000;
+        IWalletAddr = payable(0x0000000000000000000000000000000000000000); // Wallet Contract Address
     }
 
     function registerHospital(string memory _hospitalName, string memory _password, address _hospitalAddr) public {
@@ -167,12 +175,9 @@ contract InsuranceRecord {
         return (pAlist,pNlist,ipfslist,amountList,datelist);
     }
 
-    function transact(address sender, address receiver, uint256 amount) public returns(bool){
-        address payable r = payable(receiver);
+    function transferMoney(address sender, address receiver, uint256 amount) public{
         if(msg.sender == sender) {
-            return r.send(amount);
-        } else {
-            return false;
+            IWallet(IWalletAddr).transact(receiver,amount);
         }
     }
 
@@ -185,7 +190,7 @@ contract InsuranceRecord {
         if(Addr==IC.ICAddr){
             require(c.signatureCount==1);
             c.signatureCount++;
-            transact(IC.ICAddr,p.patientAddr,IC.policyList[p.policyID]);
+            transferMoney(IC.ICAddr,p.patientAddr,IC.policyList[p.policyID]);
         } else if(Addr==h.hospitalAddr) {
             require(c.signatureCount==0);
             c.signatureCount++;

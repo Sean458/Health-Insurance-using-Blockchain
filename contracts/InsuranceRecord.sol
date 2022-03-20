@@ -64,7 +64,7 @@ contract InsuranceRecord {
     Insurance IC;
 
     constructor() public {
-        IC = Insurance(0x0e9dF964F6E2d08e4984C89DFBFf84d8aFAAfe07,"Claim-Chain","insurance","insurance",true,new uint256[](5));
+        IC = Insurance(0xC3580Cb3E0252B3B5D0a360863e6AA5c63f4AC4b,"Claim-Chain","insurance","insurance",true,new uint256[](5));
         IC.policyList[0] = 9000;
         IC.policyList[1] = 15000;
         IC.policyList[2] = 20000;

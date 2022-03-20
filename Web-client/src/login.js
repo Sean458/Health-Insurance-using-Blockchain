@@ -41,7 +41,7 @@ class login extends Component {
               <div class="card-body">
                 <h5 class="card-title"><a href="">Hospital</a></h5>
                 <p class="card-text">Login as an Hospital admin</p>
-                <a href="./signin" class="btn">Login</a>
+                <a href="./hRegister" class="btn">Login</a>
               </div>
             </div>
           </div>
@@ -51,7 +51,7 @@ class login extends Component {
               <div class="card-body">
                 <h5 class="card-title"><a href="">Patient</a></h5>
                 <p class="card-text">Login to your patient account</p>
-                <a href="./signin" class="btn">Login</a>
+                <a href="./pRegister" class="btn">Login</a>
               </div>
             </div>
           </div>

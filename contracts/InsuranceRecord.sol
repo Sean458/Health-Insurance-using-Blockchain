@@ -14,6 +14,7 @@ contract InsuranceRecord {
     struct Claim {
         address patientAddr;
         address hospitalAddr;
+        string policyname;
         string ipfsHash;
         uint256 signatureCount;
         string date;
@@ -39,6 +40,7 @@ contract InsuranceRecord {
         string username;
         string pName;
         string password;
+        string policyname;
         bool isValue;
         uint256 policyID;
         uint32 policyStat; // 0=Not selected policy; 1=Selected but not cliamed; 2= Claimed 
@@ -65,12 +67,12 @@ contract InsuranceRecord {
 
     constructor() public {
         IC = Insurance(0xC3580Cb3E0252B3B5D0a360863e6AA5c63f4AC4b,"Claim-Chain","insurance","insurance",true,new uint256[](5));
-        IC.policyList[0] = 9000;
-        IC.policyList[1] = 15000;
-        IC.policyList[2] = 20000;
-        IC.policyList[3] = 10000;
-        IC.policyList[4] = 13000;
-        IWalletAddr = payable(0x0000000000000000000000000000000000000000); // Wallet Contract Address
+        IC.policyList[0] = 1;
+        IC.policyList[1] = 2;
+        IC.policyList[2] = 3;
+        IC.policyList[3] = 4;
+        IC.policyList[4] = 5;
+        IWalletAddr = payable(0x94F4fD2168AE4C5E79bEFC0F260f66a4e2ED906A); // Wallet Contract Address
     }
 
     function registerHospital(string memory _hospitalName, string memory _password, address _hospitalAddr) public {
@@ -118,6 +120,7 @@ contract InsuranceRecord {
         p.pName = _pName;
         p.username = _username;
         p.password = _password;
+        p.policyname = '';
         p.isValue = true;
         p.policyStat = 0;
         patients[_patientAddr] = p;
@@ -149,10 +152,11 @@ contract InsuranceRecord {
         return IC.policyList;
     }
 
-    function selectPolicy(uint256 _policyID, address _patientAddr) public returns(bool){
+    function selectPolicy(uint256 _policyID,string memory _policyname, address _patientAddr) public returns(bool){
         Patient storage p = patients[_patientAddr];
         if(p.policyStat == 0) {
             p.policyID = _policyID;
+            p.policyname = _policyname;
             p.policyStat = 1;
             return true;
         } else {
@@ -160,12 +164,12 @@ contract InsuranceRecord {
         }
     }
 
-    function claimPolicy(address _patientAddr, address _hospitalAddr, string memory _ipfsHash, string memory _date) public{
+    function claimPolicy(address _patientAddr, address _hospitalAddr,string memory _policyname, string memory _ipfsHash, string memory _date) public{
         Patient storage p = patients[_patientAddr];
         require(p.isValue);
         require(p.policyStat == 1);
         p.policyStat = 2;
-        claims[_patientAddr] = Claim(_patientAddr, _hospitalAddr, _ipfsHash, 0, _date, true);
+        claims[_patientAddr] = Claim(_patientAddr, _hospitalAddr,_policyname, _ipfsHash, 0, _date, true);
         hospitals[_hospitalAddr].patientAddrList.push(_patientAddr);
     }
 
@@ -210,10 +214,11 @@ contract InsuranceRecord {
         }
     }
 
-    function getIClaimList() public view returns(address[] memory, string[] memory, string[] memory, uint256[] memory, uint256[] memory, string[] memory, string[] memory) {
+    function getIClaimList() public view returns(address[] memory, string[] memory,string[] memory, string[] memory, uint256[] memory, uint256[] memory, string[] memory, string[] memory) {
         address[] memory pAlist = new address[](claimCount);
         string[] memory pNlist = new string[](pAlist.length);
         string[] memory ipfslist = new string[](pAlist.length);
+        string[] memory policyname = new string[](pAlist.length);
         uint256[] memory SClist = new uint256[](pAlist.length);
         uint256[] memory amountList = new uint256[](pAlist.length);
         string[] memory datelist = new string[](pAlist.length);
@@ -224,12 +229,13 @@ contract InsuranceRecord {
             }
             pAlist[i] = claimList[i];
             pNlist[i] = patients[pAlist[i]].pName;
+            policyname[i] = claims[pAlist[i]].policyname;
             ipfslist[i] = claims[pAlist[i]].ipfsHash;
             SClist[i] = claims[pAlist[i]].signatureCount;
             amountList[i] = IC.policyList[patients[pAlist[i]].policyID];
             datelist[i] = claims[pAlist[i]].date;
             hNlist[i] = hospitals[claims[pAlist[i]].hospitalAddr].hospitalName;
         }
-        return (pAlist,pNlist,ipfslist,SClist,amountList,datelist,hNlist);
+        return (pAlist,pNlist,policyname,ipfslist,SClist,amountList,datelist,hNlist);
     }
 }

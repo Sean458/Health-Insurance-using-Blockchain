@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "ipfs-api": "^26.1.2",
+    "mdbreact": "^4.27.0",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-router-dom": "^4.3.1",

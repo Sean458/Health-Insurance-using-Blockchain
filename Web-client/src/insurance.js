@@ -16,7 +16,8 @@ import InsuranceRecord from "./InsuranceRecord";
   
     this.getClaims = this.getClaims.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    
+    this.requestDocs = this.requestDocs.bind(this);
+
     this.state = {
       patientAddr: "",
       pAlist: [],
@@ -26,8 +27,10 @@ import InsuranceRecord from "./InsuranceRecord";
       amountlist: [],
       datelist: [],
       hNlist: [],
+      policyname: [],
       result : [],
       data :[],
+      message :'',
     //   columns:[
     //     {Header: 'Name', accessor: 'pname'},
     //     {Header: 'Hospital', accessor: 'hname'},
@@ -37,16 +40,23 @@ import InsuranceRecord from "./InsuranceRecord";
     this.getClaims();
   }
 
-  
+  async requestDocs(event) {
+    event.preventDefault();
+    const accounts = await web3.eth.getAccounts();
+    await InsuranceRecord.methods.signClaim(this.state.patientAddr, this.state.message)
+      .send({ from: accounts[0], gas: 2100000 });
+
+
+  }
 
 
   async getClaims() {
     //const accounts = await web3.eth.getAccounts();
     this.state.result = await InsuranceRecord.methods.getIClaimList().call();
-    const {0: pAlist, 1:pNlist, 2: ipfslist,3:SClist,4:amountlist,5:datelist,6:hNlist} = this.state.result;
+    const {0: pAlist, 1:pNlist, 2:policyname,3:SClist,4:amountlist,5:datelist,6:hNlist} = this.state.result;
     this.state.pAlist=pAlist;
     this.state.pNlist=pNlist;
-    this.state.ipfslist=ipfslist;
+    this.state.policyname=policyname;
     this.state.SClist=SClist;
     this.state.amountlist=amountlist;
     this.state.datelist=datelist;
@@ -56,18 +66,17 @@ import InsuranceRecord from "./InsuranceRecord";
       if (this.state.pNlist[i]==''){
         continue;
       }
-    this.state.data.push({pname : this.state.pNlist[i], hname : this.state.hNlist[i], amt : this.state.amountlist[i],dte : this.state.datelist[i], stat : this.state.SClist[i],paddr :this.state.pAlist[i]})}
+    this.state.data.push({pname : this.state.pNlist[i], hname : this.state.hNlist[i], policyname: this.state.policyname[i], amt : this.state.amountlist[i]*10000,dte : this.state.datelist[i], stat : this.state.SClist[i],paddr :this.state.pAlist[i]})}
 
     //pAlist,pNlist,ipfslist,SClist,amountList,datelist,hNlist
 
-    console.log(pAlist);
-    console.log(pNlist);
-    console.log(ipfslist);
-    console.log(SClist);
-    console.log(amountlist);
-    console.log(datelist);
-    console.log(hNlist);
-    console.log(this.state.data);
+    // console.log(pAlist);
+    // console.log(pNlist);
+    // console.log(SClist);
+    // console.log(amountlist);
+    // console.log(datelist);
+    // console.log(hNlist);
+    // console.log(this.state.data);
 
     this.forceUpdate();
   }
@@ -82,6 +91,7 @@ import InsuranceRecord from "./InsuranceRecord";
   }
 
    render() {
+    sessionStorage.setItem("status", "Logout");
 
     //  const data = [ { 
     // pname: this.state.pNlist[0],  
@@ -126,7 +136,10 @@ import InsuranceRecord from "./InsuranceRecord";
    },{  
    Header: 'Hospital Name',  
    accessor: 'hname'  
-   },
+   },{  
+    Header: 'Policy Name',  
+    accessor: 'policyname'  
+    },
    {  
     Header: 'Amount',  
     accessor: 'amt'  
@@ -164,7 +177,7 @@ import InsuranceRecord from "./InsuranceRecord";
       
         <div className="col-md-15">
           <div className="login-form">
-            <h4 className="text-center">Approve Medical Record</h4>
+            <h4 className="text-center">Approve Medical Claim</h4>
             <div className="form-group">
               <input
                 type="string"
@@ -185,11 +198,53 @@ import InsuranceRecord from "./InsuranceRecord";
               </button>
               </div>
             </div>
-            {this.state.message && (
+            {/* {this.state.message && (
               <p className="alert alert-danger fade in">{this.state.message}</p>
-            )}
+            )} */}
           </div>
         </div> 
+
+        <div className="col-md-15">
+          <div className="login-form">
+            <h4 className="text-center">Request for Additional Documents</h4>
+            <div className="form-group">
+              <input
+                type="string"
+                
+                onChange={event => this.setState({ patientAddr: event.target.value })}
+                className="form-control"
+                placeholder="Enter Patient Address" />
+             
+            </div>
+
+            <div className="form-group">
+              <input
+                type="string"
+                
+                onChange={event => this.setState({ message: event.target.value })}
+                className="form-control"
+                placeholder="Enter Documents required" />
+             
+            </div>
+
+            <div className="form-group">
+
+            <div class="text-center">
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={this.requestDocs}
+              >
+                Send
+              </button>
+              </div>
+            </div>
+            {/* {this.state.message && (
+              <p className="alert alert-danger fade in">{this.state.message}</p>
+            )} */}
+          </div>
+        </div> 
+
+
          </div>
          
        </div>

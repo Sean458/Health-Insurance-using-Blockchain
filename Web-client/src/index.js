@@ -15,6 +15,9 @@ import hRegister from './hRegister';
 import Header from './Components/header';
 import Footer from './Components/footer'; 
 import InsuranceRecord from "./InsuranceRecord";
+
+
+
 const FullApp = () => (
   <Router>
     <div>
@@ -75,7 +78,7 @@ export default class App extends React.Component {
     this.state.hVal = hValue;
 
     const result2 = await InsuranceRecord.methods.getPatients(accounts[0]).call();
-    const {0: pAddr,1:username, 2:pName, 3: password,4:pValue,5:policyID,6:policyStat} = result2;
+    const {0: pAddr,1:username, 2:pName, 3: password,4:policyname,5:pValue,6:policyID,7:policyStat} = result2;
     this.state.pVal = pValue;
 
     // console.log(this.state.hVal);
@@ -111,7 +114,7 @@ export default class App extends React.Component {
     
     else if (this.state.pVal){
       this.state.result = await InsuranceRecord.methods.getPatients(accounts[0]).call();
-      const {0: pAddr,1:username, 2:pName, 3: password,4:isValue,5:policyID,6:policyStat} = this.state.result;
+      const {0: pAddr,1:username, 2:pName, 3: password,4:policyname, 5:isValue,6:policyID,7:policyStat} = this.state.result;
       
       this.state.chk_username = username;
       this.state.chk_password = password;
@@ -135,8 +138,11 @@ export default class App extends React.Component {
 
       <><Header />
       
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br></br><br></br><br></br><br></br><br></br>
       
+      
+      <div className='cont-login'>
+      <br></br><br></br><br></br><br></br><br></br><br></br>
       <div className="container container-fluid login-container">
         
         {this.state.login ? this.state.username == this.state.chk_username ? this.state.password == this.state.chk_password ? <Redirect to={this.state.pth} /> :
@@ -147,8 +153,8 @@ export default class App extends React.Component {
         }}>
           <div className="login-form">
             <form method="post">
-              <h1 className="text-center">Log in</h1>
-
+              <h1 className="text-center p3">Log in</h1>
+              <br></br>
               <div className="form-group">
 
                 <input disabled ={true} type="text" className="form-control" placeholder={this.state.curr_addr}></input>
@@ -159,18 +165,21 @@ export default class App extends React.Component {
               
               <div className="form-group">
                 <input type="password" className="form-control" placeholder="Password" onChange={e => this.setState({ password: e.target.value })}></input></div>
-              
+                <br></br>
               <div className="form-group">
-                <button className="btn btn-primary btn-block" onClick={() => this.setState({ login: true })}>Submit</button></div>
+                <button className="btn btn-primary btn-block btn-login" onClick={() => this.setState({ login: true })}>Submit</button></div>
               <div className="clearfix">
               </div>
             </form>
             
           </div>
         </div>
+        
       </div>
+      <br></br><br></br><br></br><br></br>
+      </div>
+     
 
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
       
       <Footer /></>
 

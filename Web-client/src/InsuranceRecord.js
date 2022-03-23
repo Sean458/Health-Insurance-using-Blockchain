@@ -1,8 +1,36 @@
 import web3 from './web3';
 
-const address = "0x932388537EA883F0C59F0bad92E01da28E094f03";
+const address = "0x1423aCC020E3dCFFfd32A296C38ae4190c4D77Ad";
 
-const abi = [
+const abi =[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patientAddr",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "statement",
+				"type": "string"
+			},
+			{
+				"internalType": "string[]",
+				"name": "new_fileName",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "new_ipfsHashList",
+				"type": "string[]"
+			}
+		],
+		"name": "addNewDoc",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
 	{
 		"inputs": [
 			{
@@ -17,8 +45,18 @@ const abi = [
 			},
 			{
 				"internalType": "string",
-				"name": "_ipfsHash",
+				"name": "_policyname",
 				"type": "string"
+			},
+			{
+				"internalType": "string[]",
+				"name": "_fileName",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "_ipfsHashList",
+				"type": "string[]"
 			},
 			{
 				"internalType": "string",
@@ -85,9 +123,32 @@ const abi = [
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "_patientAddr",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "statement",
+				"type": "string"
+			}
+		],
+		"name": "requestDoc",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "_policyID",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_policyname",
+				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -148,14 +209,8 @@ const abi = [
 				"type": "uint256"
 			}
 		],
-		"name": "transact",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"name": "transferMoney",
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -218,7 +273,12 @@ const abi = [
 			},
 			{
 				"internalType": "string",
-				"name": "ipfsHash",
+				"name": "policyname",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "statusLine",
 				"type": "string"
 			},
 			{
@@ -264,7 +324,22 @@ const abi = [
 					},
 					{
 						"internalType": "string",
-						"name": "ipfsHash",
+						"name": "policyname",
+						"type": "string"
+					},
+					{
+						"internalType": "string[]",
+						"name": "fileName",
+						"type": "string[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "ipfsHashList",
+						"type": "string[]"
+					},
+					{
+						"internalType": "string",
+						"name": "statusLine",
 						"type": "string"
 					},
 					{
@@ -305,11 +380,6 @@ const abi = [
 				"internalType": "address[]",
 				"name": "",
 				"type": "address[]"
-			},
-			{
-				"internalType": "string[]",
-				"name": "",
-				"type": "string[]"
 			},
 			{
 				"internalType": "string[]",
@@ -467,6 +537,11 @@ const abi = [
 					{
 						"internalType": "string",
 						"name": "password",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "policyname",
 						"type": "string"
 					},
 					{
@@ -658,6 +733,11 @@ const abi = [
 			{
 				"internalType": "string",
 				"name": "password",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "policyname",
 				"type": "string"
 			},
 			{

@@ -19,12 +19,6 @@ class Footer extends Component {
 
   <div class="container">
 
-    <div class="row  justify-content-center">
-      <div class="col-lg-6">
-        
-        <p>Connect with us!</p>
-      </div>
-    </div>
 
 
 
@@ -33,7 +27,7 @@ class Footer extends Component {
       <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
       <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
     </div>
-    <br></br> <br></br> <br></br>        
+       <br></br>   
   </div>
 </div>
 </footer>

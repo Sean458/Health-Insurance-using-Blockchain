@@ -54,7 +54,7 @@ const FullApp = () => (
   async checkRegistered () {
     const accounts = await web3.eth.getAccounts();
     this.state.result = await InsuranceRecord.methods.getPatients(accounts[0]).call();
-    const {0: pAddr,1:username, 2:pName, 3: passwrd,4:isValue,5:policyID,6:policyStat} = this.state.result;
+    const {0: pAddr,1:username, 2:pName, 3: passwrd,4:policyname, 5:isValue,6:policyID,7:policyStat} = this.state.result;
     this.state.isVal = isValue;
     this.forceUpdate();
   }
@@ -89,6 +89,7 @@ const FullApp = () => (
    render() {
     const renderRecord = () => {
       console.log(this.state.isVal)
+      sessionStorage.setItem("status", "Login");
       //console.log(this.state.paddr)
       //console.log(this.state.registered.includes(this.state.paddr))
       if(this.state.isVal) {
@@ -101,12 +102,16 @@ const FullApp = () => (
       else {
         
         return(
-          <div className="container container-fluid login-conatiner">
-
-            <div className="col-md-4">
+          
+          <div class="cont-register">
+            <br></br><br></br><br></br>
+          <div className="container container-fluid register-container ">
+            
+            <div className="col-md-6">
               <div className="login-form">
                 <form method="post" autoComplete="off">
-                  <h2 className="text-center">Register as Patient</h2>
+                
+                  <h1 className="text-center">Patient Registration</h1>
                   {/* <div className="form-group">
                     <input
                       type="text"
@@ -118,6 +123,7 @@ const FullApp = () => (
                       placeholder="ID"
                     />
                   </div> */}
+                  <br></br>
                   <div className="form-group">
                     <input disabled={true}
                       type="text"
@@ -136,7 +142,43 @@ const FullApp = () => (
                         this.setState({ pname: event.target.value })
                       }
                       className="form-control"
-                      placeholder="Name"
+                      placeholder="Full Name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <input
+                      type="Date"
+                      // value={String(this.state.dDate)}
+                      // onChange={event =>
+                      //   this.setState({ dDate: event.target.value })
+                      // }
+                      className="form-control"
+                      placeholder="DOB"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      // value={this.state.pname}
+                      // onChange={event =>
+                      //   this.setState({ pname: event.target.value })
+                      // }
+                      className="form-control"
+                      placeholder="Email-Id"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      // value={this.state.pname}
+                      // onChange={event =>
+                      //   this.setState({ pname: event.target.value })
+                      // }
+                      className="form-control"
+                      placeholder="Contact number"
                     />
                   </div>
                   
@@ -166,7 +208,7 @@ const FullApp = () => (
                   
                   <div className="form-group">
                     <button
-                      className="btn btn-primary btn-block"
+                      className="btn btn-primary btn-block btn-login"
                       onClick={this.handleClick}
                     >
                       Register
@@ -182,6 +224,9 @@ const FullApp = () => (
               </div>
             </div>
           </div>
+          <br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+          </div>
+          
         );
       }
     }
@@ -190,11 +235,11 @@ const FullApp = () => (
        
 
       <><Header />
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br></br><br></br><br></br><br></br><br></br>
       <div>
         {renderRecord()}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br> <br></br> <br></br><br></br><br></br><br></br><br></br>
+      
        <Footer /></>
      );
    }

@@ -2,14 +2,21 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch,Link,Redirect } from 'react-router-dom';
 
 import login from '../login';
-
+import web3 from "../web3";
+import InsuranceRecord from "../InsuranceRecord";
 
 
 class Header extends Component {
 
-    render() {
 
+    
+    
+
+    render() {
+      var userstatus = sessionStorage.getItem('status');
+    
         return (
+
 
 <header id="header" class="fixed-top d-flex align-items-center header-opaque py-0">
 <div class="container d-flex align-items-center justify-content-between">
@@ -22,7 +29,7 @@ class Header extends Component {
 
   <nav id="navbar" class="navbar navbar-dark">
     <ul>
-      <li><a class="nav-link scrollto active" href="./">Home</a></li>
+      <li><a class="nav-link scrollto" href="./">Home</a></li>
       <li><a class="nav-link scrollto" href="#about">About</a></li>
       <li><a class="nav-link scrollto" href="#services">Services</a></li>      
       {/* <li class="dropdown"><a href="#"><span>Drop Down</span> <i class="bi bi-chevron-down"></i></a>
@@ -42,7 +49,7 @@ class Header extends Component {
           <li><a href="#">Drop Down 4</a></li>
         </ul>
       </li> */}
-      <li><a class="nav-link scrollto" href="./login">Login</a></li>
+      <li><a class="nav-link scrollto active" href="./login">{userstatus}</a></li>
     </ul>
     <i class="bi bi-list mobile-nav-toggle"></i>
   </nav>

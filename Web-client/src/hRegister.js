@@ -94,6 +94,7 @@ const FullApp = () => (
    render() {
     const renderRecord = () => {
       console.log(this.state.isVal)
+      sessionStorage.setItem("status", "Login");
       //console.log(this.state.paddr)
       //console.log(this.state.registered.includes(this.state.paddr))
       if(this.state.isVal) {
@@ -106,12 +107,14 @@ const FullApp = () => (
       else {
         
         return(
-          <div className="container container-fluid login-conatiner">
-
-            <div className="col-md-4">
+          <div className="cont-hregister">
+          <div className="container container-fluid register-container">
+            <br></br><br></br><br></br><br></br><br></br>
+            <div className="col-md-6">
               <div className="login-form">
                 <form method="post" autoComplete="off">
                   <h2 className="text-center">Hospital Registration</h2>
+                  <br></br>
                   {/* <div className="form-group">
                     <input
                       type="text"
@@ -141,7 +144,7 @@ const FullApp = () => (
                         this.setState({ username: event.target.value })
                       }
                       className="form-control"
-                      placeholder="Name"
+                      placeholder="Hospital name"
                     />
                   </div>
                   
@@ -159,9 +162,11 @@ const FullApp = () => (
                     />
                   </div>
                   
+                  <br></br>
+
                   <div className="form-group">
                     <button
-                      className="btn btn-primary btn-block"
+                      className="btn btn-primary btn-block btn-login"
                       onClick={this.handleClick}
                     >
                       Register
@@ -177,6 +182,7 @@ const FullApp = () => (
               </div>
             </div>
           </div>
+          </div>
         );
       }
     }
@@ -185,11 +191,11 @@ const FullApp = () => (
        
 
       <><Header />
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br></br><br></br><br></br><br></br><br></br>
       <div>
         {renderRecord()}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br> <br></br> <br></br><br></br><br></br>
+      
        <Footer /></>
      );
    }

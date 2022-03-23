@@ -27,6 +27,7 @@ export default class Hadmin extends React.Component {
       datelist: [],
       result : [],
       data :[],
+      ipfs: '',
     };
     this.HospgetClaims();
   }
@@ -34,10 +35,9 @@ export default class Hadmin extends React.Component {
   async HospgetClaims() {
     const accounts = await web3.eth.getAccounts();
     this.state.result = await InsuranceRecord.methods.getHClaimList(accounts[0]).call();   //pAlist,pNlist,ipfslist,amountList,datelist
-    const {0: pAlist, 1:pNlist, 2: ipfslist,3:amountlist,4:datelist} = this.state.result;
+    const {0: pAlist, 1:pNlist, 2:amountlist,3:datelist} = this.state.result;
     this.state.pAlist=pAlist;
     this.state.pNlist=pNlist;
-    this.state.ipfslist=ipfslist;
     this.state.amountlist=amountlist;
     this.state.datelist=datelist;
     
@@ -45,7 +45,8 @@ export default class Hadmin extends React.Component {
       if (this.state.pNlist[i]==''){
         continue;
       }
-    this.state.data.push({pname : this.state.pNlist[i], amt : this.state.amountlist[i],dte : this.state.datelist[i], ipfs : this.state.ipfslist[i], paddr : this.state.pAlist[i]})}
+    this.state.data.push({pname : this.state.pNlist[i], amt : this.state.amountlist[i]*10,dte : this.state.datelist[i],  paddr : this.state.pAlist[i]})
+  }
 
 
     // console.log(pAlist);
@@ -70,19 +71,20 @@ export default class Hadmin extends React.Component {
   async showDocument(event) {
     event.preventDefault();
     //const accounts = await web3.eth.getAccounts();
-    const accounts = await web3.eth.getAccounts();
-    const details = await InsuranceRecord.methods.getClaimDetails(accounts[0]).call();
-    const {0: pAddr,1:haddr, 2:ipfs, 3: SC,4:pValue,5:date,6:isVal} = details;
+    // const accounts = await web3.eth.getAccounts();
+    // const details = await InsuranceRecord.methods.getClaimDetails(text).call();
+    // const {0: pAddr,1:haddr, 2:ipfs, 3: SC,4:pValue,5:date,6:isVal} = details;
     //this.state.ipfsHash = ipfs;
     //const IPFS = this.state.ipfsHash;
-    console.log(ipfs);
-    window.open("https://ipfs.io/ipfs/"+(ipfs))
+    console.log(this.state.ipfs);
+    window.open("https://ipfs.io/ipfs/"+(this.state.ipfs))
   }
   
 
 
 
   render() {
+    sessionStorage.setItem("status", "Logout");
     const columns = [{  
       Header: 'Name',  
       accessor: 'pname' 
@@ -95,10 +97,7 @@ export default class Hadmin extends React.Component {
          Header: 'Claim Date',  
          accessor: 'dte'  
          },
-       {  
-         Header: 'Documents',  
-         accessor: 'ipfs'  
-         },
+       
          {  
           Header: 'PAddr',  
           accessor: 'paddr'  
@@ -124,18 +123,49 @@ export default class Hadmin extends React.Component {
        <br></br> <br></br> <br></br>
       <div className="container container-fluid ">
       
+      <div className="col-md-15">
+          <div className="login-form">
+            <h4 className="text-center">Verify Documents</h4>
+            <div className="form-group">
+              <input
+                type="string"
+                
+                onChange={event => this.setState({ ipfs: event.target.value })}
+                className="form-control"
+                placeholder="Enter IPFS Hash" />
+             
+            </div>
+            
+            <div className="form-group">
+
+            <div class="text-center">
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={this.showDocument}
+              >
+                Verify
+              </button>
+              </div>
+            </div>
+            </div>
+            </div>
+       
+
+
+      
         <div className="col-md-15">
           <div className="login-form">
             <h4 className="text-center">Approve Medical Record</h4>
             <div className="form-group">
               <input
                 type="string"
-                value={this.state.patientAddr}
+                
                 onChange={event => this.setState({ patientAddr: event.target.value })}
                 className="form-control"
                 placeholder="Enter Patient Address" />
              
             </div>
+            
             <div className="form-group">
 
             <div class="text-center">

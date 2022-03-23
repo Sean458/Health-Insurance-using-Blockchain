@@ -7,6 +7,7 @@ import Footer from './Components/footer';
 class login extends Component {
 
     render() {
+      sessionStorage.setItem("status", "Login");
 
         return (
 

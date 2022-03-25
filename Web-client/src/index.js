@@ -146,7 +146,8 @@ export default class App extends React.Component {
       <div className="container container-fluid login-container">
         
         {this.state.login ? this.state.username == this.state.chk_username ? this.state.password == this.state.chk_password ? <Redirect to={this.state.pth} /> :
-             null : null : null }
+             null : null : null } 
+        
         <div style={{
           maxWidth: '300px',
           margin: '0 auto'

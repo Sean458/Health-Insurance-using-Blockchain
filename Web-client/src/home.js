@@ -37,16 +37,19 @@ class home extends Component {
             <h3>Blockchain provides a decentralized and trusted platform for managing data.</h3>
           </div>
           <div class="col-lg-6 pt-4 pt-lg-0">
-            <p>
+            <h4>
             The current forms of claim Processing in use are multi stage processes, which delay the 
             claim acceptance and indirectly affects quality of treatment of patients. The  current need 
             of the hour is speed while maintaining integrity.
-            </p>
+            </h4>
+            <br></br>
+            <h5>
             <ul>
               <li><i class="ri-check-double-line"></i> Digital Decentralized storage of Health Insurance records</li>
               <li><i class="ri-check-double-line"></i> Automation using Smart Contracts</li>
               <li><i class="ri-check-double-line"></i> Prevention of third-party intervention & breach of agreements.</li>
             </ul>
+            </h5>
             
           </div>
         </div>

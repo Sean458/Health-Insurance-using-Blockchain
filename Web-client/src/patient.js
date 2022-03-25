@@ -19,6 +19,8 @@ export default class Patient extends React.Component {
     this.HospitalList= this.HospitalList.bind(this);
     this.getClaims= this.getClaims.bind(this);
     this.addNewDoc=this.addNewDoc.bind(this);
+    this.showDocument = this.showDocument.bind(this);
+    this.getIClaims = this.getIClaims.bind(this);
 
     this.state = {
       pname: "",
@@ -48,15 +50,26 @@ export default class Patient extends React.Component {
       newipfshash: [],
       statement: 'Required Documents sent',
       statusline : '',
+
+      //for dropdown uploaded doc list in claim status page
+      file_name: [],
+      hash_list: [],
+      doc_data: [],
+      curr_ipfs_hash : '',
+      paddrlist: [],
+      amount: '',
+
+
       
      // IPFS: " "
     };
     this.getDetails();
     this.getClaims();
     this.HospitalList();
+    this.getIClaims();
   }
 
-  
+
 
   async handleClick(event) {
     event.preventDefault();
@@ -80,12 +93,12 @@ export default class Patient extends React.Component {
         
         
       ).send({ from: accounts[0], gas: 2100000 }).then((r) => {
-        this.setState({ipfsHash: result[0].hash});
-        console.log(this.state.ipfsHash);
+        this.setState({curr_ipfs_hash: result[0].hash});
+        
       });
     });
 
-      console.log("2",this.state.ipfsHash);
+      
     this.setState({ message: "Claim Submitted" });
     this.forceUpdate();
   }
@@ -108,12 +121,12 @@ export default class Patient extends React.Component {
   async getDetails() {
     const accounts = await web3.eth.getAccounts();
     const details = await InsuranceRecord.methods.getPatients(accounts[0]).call();
-    const {0: pAddr,1:username, 2:pName, 3: password,4:policyname,5:pValue,6:policyID,7:policyStat} = details;
+    const {0: pAddr,1:username, 2:pName, 3: password,4:policyname,5:pValue,6:policyID,7:policystat} = details;
 
     this.state.paddr = pAddr;
     this.state.pname = pName;
     this.state.policyID = policyID;
-    this.state.policyStat = policyStat;
+    this.setState({policyStat : policystat});
     this.state.policyname = policyname;
     
     this.forceUpdate();
@@ -136,26 +149,56 @@ export default class Patient extends React.Component {
     const details = await InsuranceRecord.methods.getClaimDetails(accounts[0]).call();
     const {0: pAddr,1:haddr,2:policyname,3:filename,4:ipfsHashList,5:statusline, 6: SC,7:date,8:isVal} = details;
     
-    
+    this.state.file_name = filename;
+    this.state.hash_list = ipfsHashList;
+
     this.state.SignaCount = SC;
     this.state.dDate =date;
     this.state.statusline = statusline;
     console.log(this.state.SignaCount);
     
+    for (var i=0; i< filename.length; i++){
+
+    this.state.doc_data.push({filename : this.state.file_name[i], hashname : this.state.hash_list[i]})
+  }
 
     this.forceUpdate();
   }
 
-  async getHospName() {
+  async getIClaims() {
+    const accounts = await web3.eth.getAccounts();
+    this.state.result = await InsuranceRecord.methods.getIClaimList().call();
+    const {0: pAlist, 1:pNlist, 2:policyname,3:SClist,4:amountlist,5:datelist,6:hNlist} = this.state.result;
     
-    const details = await InsuranceRecord.methods.getHospitals(this.state.haddr).call();
-    const {0: hAddr,1:password, 2:hName,3:isVal, 4:pAddrList} = details;
-    console.log(this.state.hname)
+    this.state.paddrlist = pAlist;
+    this.state.amountlist=amountlist;
+    this.state.hNlist=hNlist;
+
+    for( var i=0; i<pAlist.length;i++){
+      if (this.state.paddrlist[i]==accounts[0]){
+        this.state.amount=this.state.amountlist[i];
+        this.state.hname=this.state.hNlist[i];
+      }
+      else{
+        continue
+      }
+    }
     
-    this.state.hname = hName;
+
+
+    this.forceUpdate();
+  }
+
+  // async getHospName() {
+    
+  //   const details = await InsuranceRecord.methods.getHospitals(this.state.haddr).call();
+  //   const {0: hAddr,1:password, 2:hName,3:isVal, 4:pAddrList} = details;
+  //   console.log(this.state.hname)
+    
+  //   this.state.hname = hName;
 
     
-  }
+  // }
 
   async HospitalList () {
     //const accounts = await web3.eth.getAccounts();
@@ -163,6 +206,8 @@ export default class Patient extends React.Component {
     const {0: hAddr,1:hname} = details;
     this.state.haddrlist =hAddr;
     this.state.hnamelist =hname;
+
+    //this.state.data.push({hname : "Select Hospital Provider...", haddr : this.state.haddrlist[0]})
 
     for (var i=0; i< hname.length; i++){
       if (this.state.hnamelist[i]==''){
@@ -179,14 +224,15 @@ export default class Patient extends React.Component {
   async showDocument(event) {
     event.preventDefault();
     //const accounts = await web3.eth.getAccounts();
+    
     const accounts = await web3.eth.getAccounts();
     const details = await InsuranceRecord.methods.getClaimDetails(accounts[0]).call();
     const {0: pAddr,1:haddr,2:policyname,3:filename,4:ipfsHashList,5:statusline, 6: SC,7:date,8:isVal} = details;
     //this.state.ipfsHash = ipfs;
     //const IPFS = this.state.ipfsHash;
     
-    console.log(ipfsHashList);
-    window.open("https://ipfs.io/ipfs/"+(ipfsHashList[0]))
+    console.log(this.state.curr_ipfs_hash);
+    window.open("https://ipfs.io/ipfs/"+(this.state.curr_ipfs_hash))
   }
 
   async addNewDoc(event) {
@@ -201,14 +247,14 @@ export default class Patient extends React.Component {
       }
       this.state.newipfshash.push(result[0].hash);
       this.state.newfilenamelist.push(this.state.newfilename);
-      
-        
-     
+      InsuranceRecord.methods.addNewDoc(accounts[0],this.state.statement,this.state.newfilenamelist,this.state.newipfshash).send({ from: accounts[0], gas: 2100000 });
     });
+    
+
     console.log(this.state.newfilenamelist);
     console.log(this.state.newipfshash);
 
-    await InsuranceRecord.methods.addNewDoc(accounts[0],this.state.statement,this.state.newfilenamelist,this.state.newipfshash).send({ from: accounts[0], gas: 2100000 });
+
     
     this.forceUpdate();
   }
@@ -216,6 +262,26 @@ export default class Patient extends React.Component {
 
   render() {
     sessionStorage.setItem("status", "Logout");
+
+    const { doc_data } = this.state;
+
+    let filelist = doc_data.length > 0
+      && doc_data.map((item, i) => {
+      return (
+        <option key={i} value={item.hashname}>{item.filename}</option>
+      )
+    }, this);
+
+
+    const { data } = this.state;
+
+    let hosplist = data.length > 0
+      && data.map((item, i) => {
+      return (
+        <option key={i} value={item.haddr}>{item.hname}</option>
+      )
+    }, this);
+
 
     
     const columns = [{  
@@ -280,13 +346,15 @@ export default class Patient extends React.Component {
                   <br></br>
                   <h3 className=""><b>Policy Name</b>: {this.state.policyname}</h3>
                   <br></br>
-                  <h3 className=""><b>Hospital Provider Name</b>: Apollo</h3>
+                  <h3 className=""><b>Hospital Provider Name</b>: {this.state.hname}</h3>
                   <br></br>
-                  <h3 className=""><b>Amount Claimed</b>: Rs. 23134</h3>
+                  <h3 className=""><b>Amount Claimed</b>: Rs. {(this.state.amount)*10000}</h3>
                   <br></br>
                   <h3 className=""><b>Date of Claim</b>: {String(this.state.dDate).split('-').reverse().join(' / ')}</h3>
                   <br></br>
-                  <h3 className=""><b>Uploaded Documents</b>: <button onClick={this.showDocument}>View Document</button></h3>
+                  {/* <h3 className=""><b>Uploaded Documents</b>: <button onClick={this.showDocument}>View Document</button></h3> */}
+                  <h3 className=""><b>Uploaded Documents</b>: <select name='doclist' onChange={event =>this.setState({ curr_ipfs_hash: event.target.value })}>{filelist}  </select></h3>
+                  <h5 className=""><button onClick={this.showDocument}>View Document</button></h5>
                   <br></br>
                   <h3 className=""><b>Claim Status</b>: {statusDisplay()}</h3>
                   <br></br>
@@ -304,11 +372,14 @@ export default class Patient extends React.Component {
                       placeholder="Enter Filename"
                     />
                   </div>
+                  <div className="form-group">
+                    <h5>
                   <input
                       type="file"            
                       onChange={this.captureFile}
-                      className="form-control"
-                    />
+                      className=""
+                    /></h5>
+                    </div>
                     <div className="form-group">
                     <button
                       className="btn btn-primary"
@@ -434,14 +505,20 @@ export default class Patient extends React.Component {
                     />
                   </div>
                   <div className="form-group">
-                    <input
+                    
+                    <select className="form-control" onChange={event =>this.setState({ haddr: event.target.value })}>
+                      <option>Select the Hospital Provider...</option>
+                      {hosplist}
+                    </select>
+                    {console.log(this.state.haddr)}
+                    {/* <input
                       type="text"
                       onChange={event =>
                         this.setState({ haddr: event.target.value })
                       }
                       className="form-control"
                       placeholder="HospAddr"
-                    />
+                    /> */}
                   </div>
 
                   <div className="form-group">
@@ -507,7 +584,7 @@ export default class Patient extends React.Component {
                     <input
                       type="file"            
                       onChange={this.captureFile}
-                      className="form-control"
+                      className=""
                     />
                   </div>
                   <div className="form-group">
